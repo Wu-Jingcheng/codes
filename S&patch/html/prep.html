@@ -1,0 +1,195 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>prep</title><meta name="generator" content="MATLAB 9.0"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2019-04-04"><meta name="DC.source" content="prep.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><pre class="codeinput"><span class="comment">% Preparation code inlcudes:  construct the voxel space and visulization</span>
+<span class="comment">% before backprojection</span>
+<span class="comment">% input parameter:</span>
+<span class="comment">% 1 minimalpos: minimal corner position, unit m</span>
+<span class="comment">% 2 maximalpos: maximam corner position, unit m</span>
+<span class="comment">% 3 gridsize: reconstructed spatial grid size, unit m</span>
+<span class="keyword">function</span> [pts, pixels] = prep(dataset,minimalpos, maximalpos, gridsize)
+        [pts, pixels] = makegrid(minimalpos, maximalpos, gridsize);
+        <span class="comment">% Plot forward projection</span>
+        fwdproject( minimalpos, maximalpos, dataset );
+<span class="keyword">end</span>
+
+
+<span class="keyword">function</span> [pts, pixels] = makegrid( minimalpos, maximalpos, gridsize)
+    pixels = ceil(abs(minimalpos-maximalpos)./gridsize); <span class="comment">% Number of pixels per direction</span>
+    vx=[1 0 0].*gridsize; <span class="comment">% Unit vector</span>
+    vy=[0 1 0].*gridsize; <span class="comment">% Unit vector</span>
+    vz=[0 0 1].*gridsize; <span class="comment">% Unit vector</span>
+    npixels=pixels(1)*pixels(2)*pixels(3); <span class="comment">% Total number of pixels</span>
+
+    pts=zeros(npixels,3); <span class="comment">% Pre-allocation, for speed</span>
+
+    j=1;
+
+    <span class="keyword">for</span> x=1:pixels(1)
+        <span class="keyword">for</span> y=1:pixels(2)
+            <span class="keyword">for</span> z=1:pixels(3)
+                tmp =minimalpos+(x-1).*vx+(y-1)*vy+(z-1)*vz;
+                pts(j,:) = tmp;
+                j=j+1;
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+
+<span class="keyword">function</span> fwdproject( rightbottomback, lefttopfront, dataset )
+    x = [rightbottomback(1) lefttopfront(1) lefttopfront(1) rightbottomback(1) rightbottomback(1) rightbottomback(1)<span class="keyword">...</span>
+         rightbottomback(1) rightbottomback(1) rightbottomback(1) rightbottomback(1) lefttopfront(1) lefttopfront(1)<span class="keyword">...</span>
+         lefttopfront(1) lefttopfront(1) lefttopfront(1) lefttopfront(1) lefttopfront(1)<span class="keyword">...</span>
+         lefttopfront(1) rightbottomback(1)]';
+    y = [lefttopfront(2) lefttopfront(2) rightbottomback(2) rightbottomback(2) lefttopfront(2) lefttopfront(2)<span class="keyword">...</span>
+         rightbottomback(2) rightbottomback(2) lefttopfront(2) lefttopfront(2) lefttopfront(2) lefttopfront(2)<span class="keyword">...</span>
+         rightbottomback(2) rightbottomback(2) lefttopfront(2) lefttopfront(2) lefttopfront(2)<span class="keyword">...</span>
+         rightbottomback(2) rightbottomback(2)]';
+    z = [rightbottomback(3) rightbottomback(3) rightbottomback(3) rightbottomback(3) rightbottomback(3) lefttopfront(3)<span class="keyword">...</span>
+         lefttopfront(3) rightbottomback(3) rightbottomback(3) lefttopfront(3) lefttopfront(3) rightbottomback(3)<span class="keyword">...</span>
+         rightbottomback(3) lefttopfront(3) lefttopfront(3) rightbottomback(3) lefttopfront(3)<span class="keyword">...</span>
+         lefttopfront(3) lefttopfront(3)]';
+
+    <span class="comment">%plot the scene</span>
+    figure; hold <span class="string">on</span>;
+    axis <span class="string">equal</span>;
+    title (<span class="string">'Forward Projection'</span>)
+    plot3(x, y, z, <span class="string">'b-'</span>); <span class="comment">%Plot outline of projection area</span>
+    plot3(dataset.cameraPos(:,1), dataset.cameraPos(:,2), dataset.cameraPos(:,3), <span class="string">'k.'</span>); <span class="comment">%camera positions</span>
+    plot3(dataset.laserPos(:,1), dataset.laserPos(:,2), dataset.laserPos(:,3), <span class="string">'r.'</span>) <span class="comment">%laser positions</span>
+<span class="keyword">end</span>
+</pre><pre class="codeoutput error">&#36755;&#20837;&#21442;&#25968;&#30340;&#25968;&#30446;&#19981;&#36275;&#12290;
+
+&#20986;&#38169; prep (line 8)
+        [pts, pixels] = makegrid(minimalpos, maximalpos, gridsize);        
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2016a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+% Preparation code inlcudes:  construct the voxel space and visulization
+% before backprojection
+% input parameter: 
+% 1 minimalpos: minimal corner position, unit m
+% 2 maximalpos: maximam corner position, unit m
+% 3 gridsize: reconstructed spatial grid size, unit m
+function [pts, pixels] = prep(dataset,minimalpos, maximalpos, gridsize)
+        [pts, pixels] = makegrid(minimalpos, maximalpos, gridsize);        
+        % Plot forward projection 
+        fwdproject( minimalpos, maximalpos, dataset );
+end
+
+
+function [pts, pixels] = makegrid( minimalpos, maximalpos, gridsize)
+    pixels = ceil(abs(minimalpos-maximalpos)./gridsize); % Number of pixels per direction
+    vx=[1 0 0].*gridsize; % Unit vector
+    vy=[0 1 0].*gridsize; % Unit vector
+    vz=[0 0 1].*gridsize; % Unit vector
+    npixels=pixels(1)*pixels(2)*pixels(3); % Total number of pixels
+
+    pts=zeros(npixels,3); % Pre-allocation, for speed
+
+    j=1;
+
+    for x=1:pixels(1)
+        for y=1:pixels(2)
+            for z=1:pixels(3)
+                tmp =minimalpos+(x-1).*vx+(y-1)*vy+(z-1)*vz;
+                pts(j,:) = tmp;
+                j=j+1;
+            end
+        end
+    end
+end
+
+
+function fwdproject( rightbottomback, lefttopfront, dataset )
+    x = [rightbottomback(1) lefttopfront(1) lefttopfront(1) rightbottomback(1) rightbottomback(1) rightbottomback(1)...
+         rightbottomback(1) rightbottomback(1) rightbottomback(1) rightbottomback(1) lefttopfront(1) lefttopfront(1)...
+         lefttopfront(1) lefttopfront(1) lefttopfront(1) lefttopfront(1) lefttopfront(1)...
+         lefttopfront(1) rightbottomback(1)]';
+    y = [lefttopfront(2) lefttopfront(2) rightbottomback(2) rightbottomback(2) lefttopfront(2) lefttopfront(2)...
+         rightbottomback(2) rightbottomback(2) lefttopfront(2) lefttopfront(2) lefttopfront(2) lefttopfront(2)...
+         rightbottomback(2) rightbottomback(2) lefttopfront(2) lefttopfront(2) lefttopfront(2)...
+         rightbottomback(2) rightbottomback(2)]';
+    z = [rightbottomback(3) rightbottomback(3) rightbottomback(3) rightbottomback(3) rightbottomback(3) lefttopfront(3)...
+         lefttopfront(3) rightbottomback(3) rightbottomback(3) lefttopfront(3) lefttopfront(3) rightbottomback(3)...
+         rightbottomback(3) lefttopfront(3) lefttopfront(3) rightbottomback(3) lefttopfront(3)...
+         lefttopfront(3) lefttopfront(3)]';
+
+    %plot the scene
+    figure; hold on;
+    axis equal; 
+    title ('Forward Projection')
+    plot3(x, y, z, 'b-'); %Plot outline of projection area
+    plot3(dataset.cameraPos(:,1), dataset.cameraPos(:,2), dataset.cameraPos(:,3), 'k.'); %camera positions
+    plot3(dataset.laserPos(:,1), dataset.laserPos(:,2), dataset.laserPos(:,3), 'r.') %laser positions
+end
+
+
+
+##### SOURCE END #####
+--></body></html>
